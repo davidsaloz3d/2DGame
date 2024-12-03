@@ -7,6 +7,7 @@ TagManager:
   - PowerUp
   - Enemy
   - Item
+  - Step
   layers:
   - Default
   - TransparentFX

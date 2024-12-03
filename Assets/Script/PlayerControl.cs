@@ -25,6 +25,8 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField] GameObject tLoser, tVictory;
 
+    AudioSource audioSrc;
+    [SerializeField] AudioClip sJump, sItem, sShoot, sDamage;
 
     bool endGame = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,6 +37,8 @@ public class PlayerControl : MonoBehaviour
         tVidas.text = "Vidas: " + lives;
         tItems.text = "Items: " + items;
         tTime.text = time.ToString();
+
+        audioSrc = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -83,12 +87,21 @@ public class PlayerControl : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) && grounded())
             {
                 rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+                audioSrc.PlayOneShot(sJump);
             }
 
             if (Input.GetKeyDown(KeyCode.E))
             {
                 Instantiate(shot, new Vector3(transform.position.x, transform.position.y + 1.7f, 0), Quaternion.identity);
                 anim.SetBool("isShoot", true);
+                audioSrc.PlayOneShot(sShoot);
+            }
+
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                speed = 10;
+            }else{
+                speed = 4;
             }
 
             time = time - Time.deltaTime;
@@ -139,6 +152,7 @@ public class PlayerControl : MonoBehaviour
         {
             Destroy(other.gameObject);
             items++;
+            audioSrc.PlayOneShot(sItem);
             tItems.text = "Items: " + items;
             if (items == 2)
             {
@@ -147,6 +161,7 @@ public class PlayerControl : MonoBehaviour
                 Invoke("goToCredits", 3);
             }
         }
+
     }
 
     void becomeVulnerable()
@@ -158,6 +173,7 @@ public class PlayerControl : MonoBehaviour
     public void damage()
     {
         lives--;
+        audioSrc.PlayOneShot(sDamage);
         sprite.color = Color.red;
         GameManager.invulnerable = true;
         Invoke("becomeVulnerable", vulnera);
