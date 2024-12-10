@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Item
   - Step
+  - Water
   layers:
   - Default
   - TransparentFX

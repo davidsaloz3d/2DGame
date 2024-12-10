@@ -14,12 +14,12 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] GameObject shot;
 
     [SerializeField] int items = 0;
-    [SerializeField] float time = 180;
+    [SerializeField] float time = 300;
 
 
     public static bool right = true;
 
-    public int vulnera = 1;
+    public float vulnera = 0.4f;
 
     [SerializeField] TMP_Text tVidas, tItems, tTime;
 
@@ -99,8 +99,19 @@ public class PlayerControl : MonoBehaviour
 
             if (Input.GetKey(KeyCode.LeftShift))
             {
-                speed = 10;
-            }else{
+                if (grounded())
+                {
+                    anim.SetBool("VeryRun", true);
+                    speed = 9;
+                }else{
+                    anim.SetBool("VeryRun", false);
+                    speed = 9;
+                }
+
+            }
+            else
+            {
+                anim.SetBool("VeryRun", false);
                 speed = 4;
             }
 
@@ -118,7 +129,9 @@ public class PlayerControl : MonoBehaviour
             sec = Mathf.Floor(time % 60);
             tTime.text = min.ToString("00") + ":" + sec.ToString("00");
 
-        }else{
+        }
+        else
+        {
             sprite.gameObject.SetActive(false);
         }
     }
@@ -143,7 +156,7 @@ public class PlayerControl : MonoBehaviour
         if (other.gameObject.tag == "PowerUp")
         {
             Destroy(other.gameObject);
-            sprite.color = Color.blue;
+            sprite.color = new Color(0, 1, 1, 1);
             GameManager.invulnerable = true;
             Invoke("becomeVulnerable", 5);
         }
@@ -154,13 +167,14 @@ public class PlayerControl : MonoBehaviour
             items++;
             audioSrc.PlayOneShot(sItem);
             tItems.text = "Items: " + items;
-            if (items == 2)
+            if (items == 10)
             {
                 endGame = true;
                 tVictory.SetActive(true);
                 Invoke("goToCredits", 3);
             }
         }
+
 
     }
 

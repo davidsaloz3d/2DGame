@@ -8,6 +8,8 @@ public class PlatformControl : MonoBehaviour
     [SerializeField] Vector3 endPosition;
     Vector3 startPosition;
     bool goingToTheEnd = true; 
+
+    [SerializeField] GameObject colliderBajo;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -40,5 +42,7 @@ public class PlatformControl : MonoBehaviour
             other.gameObject.transform.SetParent(null);
         }
     }
+
+
     
 }
