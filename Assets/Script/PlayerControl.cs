@@ -29,6 +29,12 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] AudioClip sJump, sItem, sShoot, sDamage;
 
     bool endGame = false;
+
+    bool quieto = true;
+    bool jumping = false;
+
+    [SerializeField] private float shootCooldown = 2f; // Intervalo de disparo en segundos
+    private float lastShoot = 0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -66,20 +72,23 @@ public class PlayerControl : MonoBehaviour
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
             {
                 anim.SetBool("isRunning", true);
+                quieto = false;
             }
             else
             {
                 anim.SetBool("isRunning", false);
+                quieto = true;
             }
 
 
-            if (grounded() == false)
-            {
-                anim.SetBool("isJump", true);
-            }
-            else
+            if (grounded())
             {
                 anim.SetBool("isJump", false);
+                jumping = false;
+            }
+            else if(jumping)
+            {
+                anim.SetBool("isJump", true);
             }
 
 
@@ -88,18 +97,21 @@ public class PlayerControl : MonoBehaviour
             {
                 rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
                 audioSrc.PlayOneShot(sJump);
+                jumping = true;
+                anim.SetBool("isJump", true);
             }
 
-            if (Input.GetKeyDown(KeyCode.E))
+            if (Input.GetKeyDown(KeyCode.E) && Time.time >= lastShoot + shootCooldown)
             {
                 Instantiate(shot, new Vector3(transform.position.x, transform.position.y + 1.7f, 0), Quaternion.identity);
                 anim.SetBool("isShoot", true);
                 audioSrc.PlayOneShot(sShoot);
+                lastShoot = Time.time;
             }
 
             if (Input.GetKey(KeyCode.LeftShift))
             {
-                if (grounded())
+                if (grounded() && !quieto)
                 {
                     anim.SetBool("VeryRun", true);
                     speed = 9;

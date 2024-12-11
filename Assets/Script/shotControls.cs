@@ -40,5 +40,11 @@ public class shotControls : MonoBehaviour
             Destroy(other.gameObject);
             DestroyShot();
         }
+
+        if (other.gameObject.tag == "Boss")
+        {
+            other.gameObject.GetComponent<Boss>().ReduccionDeVida();
+            DestroyShot();
+        }
     }
 }

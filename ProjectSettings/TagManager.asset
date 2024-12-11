@@ -9,6 +9,7 @@ TagManager:
   - Item
   - Step
   - Water
+  - Boss
   layers:
   - Default
   - TransparentFX
