@@ -15,6 +15,7 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField] int items = 0;
     [SerializeField] float time = 300;
+    public int intentos = 3;
 
 
     public static bool right = true;
@@ -28,6 +29,8 @@ public class PlayerControl : MonoBehaviour
     AudioSource audioSrc;
     [SerializeField] AudioClip sJump, sItem, sShoot, sDamage;
 
+    [SerializeField] GameObject menuPausa;
+
     bool endGame = false;
 
     bool quieto = true;
@@ -35,9 +38,15 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField] private float shootCooldown = 2f; // Intervalo de disparo en segundos
     private float lastShoot = 0f;
+
+
+    private Vector3 lastCheckpoint;
+
+    bool[] itemsRecogidos;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Time.timeScale = 1;
         GameManager.invulnerable = false;
         rb = GetComponent<Rigidbody2D>();
         tVidas.text = "Vidas: " + lives;
@@ -45,6 +54,11 @@ public class PlayerControl : MonoBehaviour
         tTime.text = time.ToString();
 
         audioSrc = GetComponent<AudioSource>();
+
+        lastCheckpoint = transform.position;
+        itemsRecogidos = new bool[GameObject.FindGameObjectsWithTag("Items").Length];
+
+        UpdateUI();
     }
 
     // Update is called once per frame
@@ -52,6 +66,11 @@ public class PlayerControl : MonoBehaviour
     {
         if (!endGame)
         {
+
+            if(Input.GetKeyDown(KeyCode.Escape)){
+                menuPausa.SetActive(true);
+                Time.timeScale = 0;
+            }
 
 
             float inputX = Input.GetAxis("Horizontal");
@@ -183,6 +202,7 @@ public class PlayerControl : MonoBehaviour
             {
                 endGame = true;
                 tVictory.SetActive(true);
+                Time.timeScale = 0;
                 Invoke("goToCredits", 3);
             }
         }
@@ -204,13 +224,9 @@ public class PlayerControl : MonoBehaviour
         GameManager.invulnerable = true;
         Invoke("becomeVulnerable", vulnera);
 
-        if (lives < 0)
+        if (lives <= 0)
         {
-            lives = 0;
-            endGame = true;
-            tLoser.SetActive(true);
-            Invoke("goToMenu", 3);
-
+            RestoreCheckpoint();
         }
 
         tVidas.text = "Vidas: " + lives;
@@ -226,4 +242,28 @@ public class PlayerControl : MonoBehaviour
         SceneManager.LoadScene("Credits");
     }
 
+    public void SaveCheckpoint(Vector3 checkpointPosicion){
+        lastCheckpoint = checkpointPosicion;
+    }
+
+    public void RestoreCheckpoint(){
+        transform.position = lastCheckpoint;
+
+        intentos--;
+
+        if(intentos == 0){
+            tLoser.SetActive(true);
+            Time.timeScale = 0;
+            Invoke("goToMenu", 3);
+        }
+
+        lives = 3;
+
+        UpdateUI();
+    }
+
+    void UpdateUI(){
+        tVidas.text = "Vidas: " + lives;
+        tItems.text = "Items: " + items;
+    }
 }
