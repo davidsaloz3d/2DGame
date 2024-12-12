@@ -40,7 +40,6 @@ public class shotControls : MonoBehaviour
         if (other.gameObject.tag == "Enemy")
         {
             Destroy(other.gameObject);
-            
             DestroyShot();
         }
 

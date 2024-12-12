@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  sEnemyDamage: {fileID: 8300000, guid: f7fb4c8c9ed459a4eb37162bc68017de, type: 3}
+  sEnemy: {fileID: 8300000, guid: f7fb4c8c9ed459a4eb37162bc68017de, type: 3}
 --- !u!50 &-7172214069291737738
 Rigidbody2D:
   serializedVersion: 5
