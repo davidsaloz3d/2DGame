@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 public class PlayerControl : MonoBehaviour
@@ -35,6 +36,13 @@ public class PlayerControl : MonoBehaviour
 
     bool jumping = false;
 
+    bool wasGrounded;
+
+    public float BufferJump = 0.2f;
+    private float BufferTime;
+
+    public float CoyoteTime = 0.2f;
+    private float CoyoteCountDown;
 
 
     [SerializeField] private float shootCooldown = 2f; // Intervalo de disparo en segundos
@@ -89,7 +97,7 @@ public class PlayerControl : MonoBehaviour
 
             //Animaciones
             // Animación: correr
-        if (Mathf.Abs(inputX) > 0 && grounded())
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
         {
             anim.SetBool("isRunning", true);
         }
@@ -98,31 +106,58 @@ public class PlayerControl : MonoBehaviour
             anim.SetBool("isRunning", false);
         }
 
+        if(grounded() && !wasGrounded){
+            OnLand();
+        }
+
+        void OnLand(){
+            jumping = false;
+        }
+
+        wasGrounded = grounded();
+
         // Animación: salto
-        if (Input.GetKeyDown(KeyCode.Space) && grounded())
+        if (CoyoteCountDown > 0f && BufferTime > 0f)
         {
-            Debug.Log("Espacio presionado");
-            rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+            rb.linearVelocity = new Vector2(rb.linearVelocityX, jump);
             audioSrc.PlayOneShot(sJump);
-            jumping = true; // Marcar que el salto es intencional
-            Debug.Log("Salto intencional iniciado" + jumping);
+            BufferTime = 0f;
+            jumping = true;
+            Debug.Log(jumping);
+        }
+
+        if(Input.GetKeyUp(KeyCode.Space) && rb.linearVelocity.y > 0f){
+            rb.linearVelocity = new Vector2(rb.linearVelocityX, rb.linearVelocityY * 0.5f);
+            CoyoteCountDown = 0f;
         }
 
         // Animaciones: salto y caída
-        if (!grounded())
-        {
-            if (jumping)
+            if (!grounded() && jumping)
             {
-                anim.SetBool("isJump", true); 
-                Debug.Log(jumping);// Mantener animación de salto si es intencional
+            
+                    Debug.Log("Salto");
+                    anim.SetBool("isJump", true); 
             }
+            else
+            {
+                // Tocar el suelo: Resetear animación y estado de salto
+                anim.SetBool("isJump", false);
+            }
+
+        if(grounded()){
+            CoyoteCountDown = CoyoteTime;
+        }else{
+            CoyoteCountDown -= Time.deltaTime;
         }
-        else
-        {
-            // Tocar el suelo: Resetear animación y estado de salto
-            anim.SetBool("isJump", false);
-            jumping = false;
-            Debug.Log(jumping);
+
+        if(Input.GetKeyDown(KeyCode.Space)){
+            BufferTime = BufferJump;
+        }else{
+            BufferTime -= Time.deltaTime;
+        }
+
+        if(BufferTime < -1f){
+            BufferTime = -0.5f;
         }
 
         // Correr más rápido
@@ -183,12 +218,10 @@ public class PlayerControl : MonoBehaviour
 
         if (touch.collider == null)
         {
-            Debug.Log("No está en el suelo");
             return false;
         }
         else
         {
-            Debug.Log("Está en el suelo: " + touch.collider.name);
             return true;
         }
     }
