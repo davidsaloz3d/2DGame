@@ -36,13 +36,14 @@ public class PlayerControl : MonoBehaviour
     bool quieto = true;
     bool jumping = false;
 
+    bool falling = false;
+
     [SerializeField] private float shootCooldown = 2f; // Intervalo de disparo en segundos
     private float lastShoot = 0f;
 
 
     private Vector3 lastCheckpoint;
 
-    bool[] itemsRecogidos;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -56,7 +57,6 @@ public class PlayerControl : MonoBehaviour
         audioSrc = GetComponent<AudioSource>();
 
         lastCheckpoint = transform.position;
-        itemsRecogidos = new bool[GameObject.FindGameObjectsWithTag("Items").Length];
 
         UpdateUI();
     }
@@ -67,7 +67,8 @@ public class PlayerControl : MonoBehaviour
         if (!endGame)
         {
 
-            if(Input.GetKeyDown(KeyCode.Escape)){
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
                 menuPausa.SetActive(true);
                 Time.timeScale = 0;
             }
@@ -105,19 +106,17 @@ public class PlayerControl : MonoBehaviour
                 anim.SetBool("isJump", false);
                 jumping = false;
             }
-            else if(jumping)
+            else if (!grounded() && jumping)
             {
                 anim.SetBool("isJump", true);
+
             }
-
-
 
             if (Input.GetKeyDown(KeyCode.Space) && grounded())
             {
                 rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
                 audioSrc.PlayOneShot(sJump);
                 jumping = true;
-                anim.SetBool("isJump", true);
             }
 
             if (Input.GetKeyDown(KeyCode.E) && Time.time >= lastShoot + shootCooldown)
@@ -134,7 +133,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     anim.SetBool("VeryRun", true);
                     speed = 9;
-                }else{
+                }
+                else
+                {
                     anim.SetBool("VeryRun", false);
                     speed = 9;
                 }
@@ -192,6 +193,16 @@ public class PlayerControl : MonoBehaviour
             Invoke("becomeVulnerable", 5);
         }
 
+        if (other.gameObject.tag == "Live")
+        {
+            Destroy(other.gameObject);
+            if (lives <= 5)
+            {
+                lives++;
+                tVidas.text = "Vidas: " + lives;
+            }
+        }
+
         if (other.gameObject.tag == "Item")
         {
             Destroy(other.gameObject);
@@ -242,16 +253,19 @@ public class PlayerControl : MonoBehaviour
         SceneManager.LoadScene("Credits");
     }
 
-    public void SaveCheckpoint(Vector3 checkpointPosicion){
+    public void SaveCheckpoint(Vector3 checkpointPosicion)
+    {
         lastCheckpoint = checkpointPosicion;
     }
 
-    public void RestoreCheckpoint(){
+    public void RestoreCheckpoint()
+    {
         transform.position = lastCheckpoint;
 
         intentos--;
 
-        if(intentos == 0){
+        if (intentos == 0)
+        {
             tLoser.SetActive(true);
             Time.timeScale = 0;
             Invoke("goToMenu", 3);
@@ -259,10 +273,12 @@ public class PlayerControl : MonoBehaviour
 
         lives = 3;
 
+        Debug.Log("Restaurado al checkpoint en: " + lastCheckpoint);
         UpdateUI();
     }
 
-    void UpdateUI(){
+    void UpdateUI()
+    {
         tVidas.text = "Vidas: " + lives;
         tItems.text = "Items: " + items;
     }
