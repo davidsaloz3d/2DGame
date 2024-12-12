@@ -27,16 +27,15 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] GameObject tLoser, tVictory;
 
     AudioSource audioSrc;
-    [SerializeField] AudioClip sJump, sItem, sShoot, sDamage;
+    [SerializeField] AudioClip sJump, sItem, sShoot, sDamage, sSinVidas, sVidasExtra;
 
     [SerializeField] GameObject menuPausa;
 
     bool endGame = false;
 
-    bool quieto = true;
     bool jumping = false;
 
-    bool falling = false;
+
 
     [SerializeField] private float shootCooldown = 2f; // Intervalo de disparo en segundos
     private float lastShoot = 0f;
@@ -89,35 +88,64 @@ public class PlayerControl : MonoBehaviour
             }
 
             //Animaciones
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
+            // Animación: correr
+        if (Mathf.Abs(inputX) > 0 && grounded())
+        {
+            anim.SetBool("isRunning", true);
+        }
+        else
+        {
+            anim.SetBool("isRunning", false);
+        }
+
+        // Animación: salto
+        if (Input.GetKeyDown(KeyCode.Space) && grounded())
+        {
+            Debug.Log("Espacio presionado");
+            rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+            audioSrc.PlayOneShot(sJump);
+            jumping = true; // Marcar que el salto es intencional
+            Debug.Log("Salto intencional iniciado" + jumping);
+        }
+
+        // Animaciones: salto y caída
+        if (!grounded())
+        {
+            if (jumping)
             {
-                anim.SetBool("isRunning", true);
-                quieto = false;
+                anim.SetBool("isJump", true); 
+                Debug.Log(jumping);// Mantener animación de salto si es intencional
+            }
+        }
+        else
+        {
+            // Tocar el suelo: Resetear animación y estado de salto
+            anim.SetBool("isJump", false);
+            jumping = false;
+            Debug.Log(jumping);
+        }
+
+        // Correr más rápido
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if (grounded() && Mathf.Abs(inputX) > 0)
+            {
+                anim.SetBool("VeryRun", true);
+                speed = 9;
             }
             else
             {
-                anim.SetBool("isRunning", false);
-                quieto = true;
+                anim.SetBool("VeryRun", false);
+                speed = 4;
             }
+        }
+        else
+        {
+            anim.SetBool("VeryRun", false);
+            speed = 4;
+        }
 
 
-            if (grounded())
-            {
-                anim.SetBool("isJump", false);
-                jumping = false;
-            }
-            else if (!grounded() && jumping)
-            {
-                anim.SetBool("isJump", true);
-
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space) && grounded())
-            {
-                rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
-                audioSrc.PlayOneShot(sJump);
-                jumping = true;
-            }
 
             if (Input.GetKeyDown(KeyCode.E) && Time.time >= lastShoot + shootCooldown)
             {
@@ -125,26 +153,6 @@ public class PlayerControl : MonoBehaviour
                 anim.SetBool("isShoot", true);
                 audioSrc.PlayOneShot(sShoot);
                 lastShoot = Time.time;
-            }
-
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                if (grounded() && !quieto)
-                {
-                    anim.SetBool("VeryRun", true);
-                    speed = 9;
-                }
-                else
-                {
-                    anim.SetBool("VeryRun", false);
-                    speed = 9;
-                }
-
-            }
-            else
-            {
-                anim.SetBool("VeryRun", false);
-                speed = 4;
             }
 
             time = time - Time.deltaTime;
@@ -175,10 +183,12 @@ public class PlayerControl : MonoBehaviour
 
         if (touch.collider == null)
         {
+            Debug.Log("No está en el suelo");
             return false;
         }
         else
         {
+            Debug.Log("Está en el suelo: " + touch.collider.name);
             return true;
         }
     }
@@ -198,6 +208,7 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);
             if (lives <= 5)
             {
+                audioSrc.PlayOneShot(sVidasExtra);
                 lives++;
                 tVidas.text = "Vidas: " + lives;
             }
@@ -237,6 +248,7 @@ public class PlayerControl : MonoBehaviour
 
         if (lives <= 0)
         {
+            audioSrc.PlayOneShot(sSinVidas);
             RestoreCheckpoint();
         }
 

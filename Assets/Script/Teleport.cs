@@ -8,6 +8,10 @@ public class Teleport : MonoBehaviour
 
     public float posX;
     public float posY;
+
+    AudioSource audioSrc;
+    [SerializeField] AudioClip sTeleport;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -22,6 +26,7 @@ public class Teleport : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collider){
         if(collider.tag == "Player"){
+            audioSrc.PlayOneShot(sTeleport);
             player.transform.position = new Vector2(posX, posY);
         }
     }

@@ -5,6 +5,8 @@ public class shotControls : MonoBehaviour
     Rigidbody2D rb;
 
     [SerializeField] float speed = 10;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -38,12 +40,14 @@ public class shotControls : MonoBehaviour
         if (other.gameObject.tag == "Enemy")
         {
             Destroy(other.gameObject);
+            
             DestroyShot();
         }
 
         if (other.gameObject.tag == "Boss")
         {
             other.gameObject.GetComponent<Boss>().ReduccionDeVida();
+            
             DestroyShot();
         }
     }

@@ -976,6 +976,7 @@ MonoBehaviour:
   portal: {fileID: 0}
   posX: 0
   posY: 0
+  sTeleport: {fileID: 8300000, guid: d19ad92de1e82d1478fc93cca29ee2fc, type: 3}
 --- !u!1 &8269758608573765490
 GameObject:
   m_ObjectHideFlags: 0
