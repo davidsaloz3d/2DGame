@@ -9,6 +9,7 @@ public class PlayerControl : MonoBehaviour
     public int speed = 4;
     public int jump = 5;
 
+    [SerializeField] int nivel;
     [SerializeField] SpriteRenderer sprite;
     [SerializeField] Animator anim;
     [SerializeField] int lives = 3;
@@ -97,46 +98,49 @@ public class PlayerControl : MonoBehaviour
 
             //Animaciones
             // Animación: correr
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
-        {
-            anim.SetBool("isRunning", true);
-        }
-        else
-        {
-            anim.SetBool("isRunning", false);
-        }
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
+            {
+                anim.SetBool("isRunning", true);
+            }
+            else
+            {
+                anim.SetBool("isRunning", false);
+            }
 
-        if(grounded() && !wasGrounded){
-            OnLand();
-        }
+            if (grounded() && !wasGrounded)
+            {
+                OnLand();
+            }
 
-        void OnLand(){
-            jumping = false;
-        }
+            void OnLand()
+            {
+                jumping = false;
+            }
 
-        wasGrounded = grounded();
+            wasGrounded = grounded();
 
-        // Animación: salto
-        if (CoyoteCountDown > 0f && BufferTime > 0f)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocityX, jump);
-            audioSrc.PlayOneShot(sJump);
-            BufferTime = 0f;
-            jumping = true;
-            Debug.Log(jumping);
-        }
+            // Animación: salto
+            if (CoyoteCountDown > 0f && BufferTime > 0f)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocityX, jump);
+                audioSrc.PlayOneShot(sJump);
+                BufferTime = 0f;
+                jumping = true;
+                Debug.Log(jumping);
+            }
 
-        if(Input.GetKeyUp(KeyCode.Space) && rb.linearVelocity.y > 0f){
-            rb.linearVelocity = new Vector2(rb.linearVelocityX, rb.linearVelocityY * 0.5f);
-            CoyoteCountDown = 0f;
-        }
+            if (Input.GetKeyUp(KeyCode.Space) && rb.linearVelocity.y > 0f)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocityX, rb.linearVelocityY * 0.5f);
+                CoyoteCountDown = 0f;
+            }
 
-        // Animaciones: salto y caída
+            // Animaciones: salto y caída
             if (!grounded() && jumping)
             {
-            
-                    Debug.Log("Salto");
-                    anim.SetBool("isJump", true); 
+
+                Debug.Log("Salto");
+                anim.SetBool("isJump", true);
             }
             else
             {
@@ -144,41 +148,48 @@ public class PlayerControl : MonoBehaviour
                 anim.SetBool("isJump", false);
             }
 
-        if(grounded()){
-            CoyoteCountDown = CoyoteTime;
-        }else{
-            CoyoteCountDown -= Time.deltaTime;
-        }
-
-        if(Input.GetKeyDown(KeyCode.Space)){
-            BufferTime = BufferJump;
-        }else{
-            BufferTime -= Time.deltaTime;
-        }
-
-        if(BufferTime < -1f){
-            BufferTime = -0.5f;
-        }
-
-        // Correr más rápido
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            if (grounded() && Mathf.Abs(inputX) > 0)
+            if (grounded())
             {
-                anim.SetBool("VeryRun", true);
-                speed = 9;
+                CoyoteCountDown = CoyoteTime;
+            }
+            else
+            {
+                CoyoteCountDown -= Time.deltaTime;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                BufferTime = BufferJump;
+            }
+            else
+            {
+                BufferTime -= Time.deltaTime;
+            }
+
+            if (BufferTime < -1f)
+            {
+                BufferTime = -0.5f;
+            }
+
+            // Correr más rápido
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                if (grounded() && Mathf.Abs(inputX) > 0)
+                {
+                    anim.SetBool("VeryRun", true);
+                    speed = 9;
+                }
+                else
+                {
+                    anim.SetBool("VeryRun", false);
+                    speed = 4;
+                }
             }
             else
             {
                 anim.SetBool("VeryRun", false);
                 speed = 4;
             }
-        }
-        else
-        {
-            anim.SetBool("VeryRun", false);
-            speed = 4;
-        }
 
 
 
@@ -257,8 +268,16 @@ public class PlayerControl : MonoBehaviour
             {
                 endGame = true;
                 tVictory.SetActive(true);
-                Time.timeScale = 0;
-                Invoke("goToCredits", 3);
+
+                if (nivel == 1)
+                {
+                    Invoke("goToLevel2", 3);
+                }
+                else
+                {
+                    Invoke("goToCredits", 3);
+                }
+
             }
         }
 
@@ -291,8 +310,13 @@ public class PlayerControl : MonoBehaviour
     public void goToMenu()
     {
         SceneManager.LoadScene("Menu");
+
     }
 
+    public void goToLevel2()
+    {
+        SceneManager.LoadScene("Level2");
+    }
     public void goToCredits()
     {
         SceneManager.LoadScene("Credits");
