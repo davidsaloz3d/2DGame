@@ -77,6 +77,7 @@ public class PlayerControl : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
+                Debug.Log(menuPausa);
                 menuPausa.SetActive(true);
                 Time.timeScale = 0;
             }

@@ -26,7 +26,7 @@ public class PauseMenu : MonoBehaviour
     }
 
     public void nivel1(){
-        SceneManager.LoadScene("Level1");
+        SceneManager.LoadScene("Level1Alternative");
     }
 
     public void credits(){
