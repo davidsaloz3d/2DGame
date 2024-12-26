@@ -11,6 +11,7 @@ TagManager:
   - Water
   - Boss
   - Live
+  - Shot
   layers:
   - Default
   - TransparentFX

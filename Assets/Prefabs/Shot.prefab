@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 5069554853002513055}
   m_Layer: 0
   m_Name: Shot
-  m_TagString: Untagged
+  m_TagString: Shot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -126,7 +126,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  sEnemy: {fileID: 8300000, guid: f7fb4c8c9ed459a4eb37162bc68017de, type: 3}
 --- !u!50 &-7172214069291737738
 Rigidbody2D:
   serializedVersion: 5

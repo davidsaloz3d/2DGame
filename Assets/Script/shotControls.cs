@@ -6,6 +6,8 @@ public class shotControls : MonoBehaviour
 
     [SerializeField] float speed = 10;
 
+    public static bool impacto = false;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -30,7 +32,7 @@ public class shotControls : MonoBehaviour
 
     }
 
-    void DestroyShot()
+    public void DestroyShot()
     {
         Destroy(gameObject);
     }
@@ -41,12 +43,13 @@ public class shotControls : MonoBehaviour
         {
             Destroy(other.gameObject);
             DestroyShot();
+            impacto = true;
         }
 
         if (other.gameObject.tag == "Boss")
         {
             other.gameObject.GetComponent<Boss>().ReduccionDeVida();
-            
+            impacto = true;
             DestroyShot();
         }
     }

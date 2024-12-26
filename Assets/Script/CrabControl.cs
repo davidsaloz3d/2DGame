@@ -11,6 +11,8 @@ public class CrabControl : MonoBehaviour
 
     [SerializeField] SpriteRenderer sprite;
     float PosPreviaX;
+
+    public static bool MeDio = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -55,6 +57,7 @@ public class CrabControl : MonoBehaviour
         if (other.gameObject.tag == "Player" && !GameManager.invulnerable)
         {
             other.gameObject.GetComponent<PlayerControl>().damage();
+            MeDio = true;
         }
     }
 }

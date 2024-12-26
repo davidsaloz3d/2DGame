@@ -12,14 +12,14 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] int nivel;
     [SerializeField] SpriteRenderer sprite;
     [SerializeField] Animator anim;
-    [SerializeField] int lives = 3;
+    public int lives = LifeUI.currentHealth;
     [SerializeField] GameObject shot;
 
     [SerializeField] int items = 0;
     [SerializeField] float time = 300;
     public int intentos = 3;
 
-
+    [SerializeField] GameObject panel;
     public static bool right = true;
 
     public float vulnera = 0.4f;
@@ -29,7 +29,7 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] GameObject tLoser, tVictory;
 
     AudioSource audioSrc;
-    [SerializeField] AudioClip sJump, sItem, sShoot, sDamage, sSinVidas, sVidasExtra;
+    [SerializeField] AudioClip sJump, sItem, sShoot, sDamage, sSinVidas, sVidasExtra, sTeleport, sVidaMenos, sEnemigo;
 
     [SerializeField] GameObject menuPausa;
 
@@ -52,16 +52,18 @@ public class PlayerControl : MonoBehaviour
 
     private Vector3 lastCheckpoint;
 
+    [SerializeField] private LifeUI lifeUI;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Time.timeScale = 1;
         GameManager.invulnerable = false;
         rb = GetComponent<Rigidbody2D>();
-        tVidas.text = "Vidas: " + lives;
-        tItems.text = "Items: " + items;
+        tVidas.text = "x" + intentos;
+        tItems.text = ": " + items;
         tTime.text = time.ToString();
-
+    
         audioSrc = GetComponent<AudioSource>();
 
         lastCheckpoint = transform.position;
@@ -216,6 +218,22 @@ public class PlayerControl : MonoBehaviour
             sec = Mathf.Floor(time % 60);
             tTime.text = min.ToString("00") + ":" + sec.ToString("00");
 
+
+            if(Teleport.pasado){
+                audioSrc.PlayOneShot(sTeleport);
+                Teleport.pasado = false;
+            }
+
+            if(shotControls.impacto){
+                audioSrc.PlayOneShot(sEnemigo);
+                shotControls.impacto = false;
+            }
+
+            if(CrabControl.MeDio){
+                audioSrc.PlayOneShot(sVidaMenos);
+                CrabControl.MeDio = false;
+            }
+
         }
         else
         {
@@ -255,7 +273,8 @@ public class PlayerControl : MonoBehaviour
             {
                 audioSrc.PlayOneShot(sVidasExtra);
                 lives++;
-                tVidas.text = "Vidas: " + lives;
+                
+                lifeUI.GainLife(1);
             }
         }
 
@@ -264,19 +283,21 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);
             items++;
             audioSrc.PlayOneShot(sItem);
-            tItems.text = "Items: " + items;
-            if (items == 10)
+            tItems.text = ": " + items;
+            if (items == 1)
             {
                 endGame = true;
+                panel.SetActive(true);
+                Time.timeScale = 0.33f;
                 tVictory.SetActive(true);
 
                 if (nivel == 1)
                 {
-                    Invoke("goToLevel2", 3);
+                    Invoke("goToLevel2", 1);
                 }
                 else
                 {
-                    Invoke("goToCredits", 3);
+                    Invoke("goToCredits", 1);
                 }
 
             }
@@ -294,6 +315,7 @@ public class PlayerControl : MonoBehaviour
     public void damage()
     {
         lives--;
+        lifeUI.LoseLife(1);
         audioSrc.PlayOneShot(sDamage);
         sprite.color = Color.red;
         GameManager.invulnerable = true;
@@ -303,9 +325,9 @@ public class PlayerControl : MonoBehaviour
         {
             audioSrc.PlayOneShot(sSinVidas);
             RestoreCheckpoint();
+            
         }
 
-        tVidas.text = "Vidas: " + lives;
     }
 
     public void goToMenu()
@@ -333,23 +355,24 @@ public class PlayerControl : MonoBehaviour
         transform.position = lastCheckpoint;
 
         intentos--;
+        tVidas.text = "x" + intentos;
 
         if (intentos == 0)
         {
+            endGame = true;
             tLoser.SetActive(true);
-            Time.timeScale = 0;
+            // Time.timeScale = 0;
             Invoke("goToMenu", 3);
         }
-
         lives = 3;
+        lifeUI.InitializeHearts();
 
-        Debug.Log("Restaurado al checkpoint en: " + lastCheckpoint);
         UpdateUI();
     }
 
     void UpdateUI()
     {
-        tVidas.text = "Vidas: " + lives;
-        tItems.text = "Items: " + items;
+        tVidas.text = "x" + intentos;
+        tItems.text = ": " + items;
     }
 }
